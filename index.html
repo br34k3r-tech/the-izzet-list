@@ -5,13 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Izzet Listesi v4.2 Changelog</title>
     
-    <!-- Discord / Open Graph preview -->
     <meta property="og:title" content="Izzet Listesi v4.2 Changelog" />
     <meta property="og:description" content="Recoloring for the purpose of distinguishing reality from irony." />
     <meta property="og:url" content="https://br34k3r-tech.github.io/the-izzet-list" />
-    <meta property="og:image" content="https://br34k3r-tech.github.io/the-izzet-list/preview.png" />
     <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
     
     <style>
         body {
@@ -46,9 +43,15 @@
             background-color: #333;
             border-radius: 4px;
             transition: background-color 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         li:hover {
             background-color: #3a3a3a;
+        }
+        .item-text {
+            flex: 1;
         }
         .irony {
             color: #888;
@@ -102,37 +105,21 @@
         button:hover {
             background-color: #6bb4ff;
         }
-        button:active {
-            background-color: #3a8eef;
+        .delete-btn {
+            background-color: #e74c3c;
+            padding: 5px 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .delete-btn:hover {
+            background-color: #c0392b;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Izzet Listesi v4.2 Changelog 7 + Recoloring for the purpose of distinguishing reality from irony.</h1>
-        <ul id="changelogList">
-            <li>🔻 1. Anneye küfür - <span class="irony">IRONY</span></li>
-            <li>2. Babaya Argo konusma</li>
-            <li>2. Kendi kucuk kardesi ona küfür</li>
-            <li>3. Yalan atma</li>
-            <li>4. Indirek olma sorunu</li>
-            <li>5. Sabit ve simplistic sorulara cevap verememe</li>
-            <li>6. Mesaj okuyup sonra cevap verme</li>
-            <li>8. Kendisine yapilmamasini istenileni baskalarina yapma</li>
-            <li>9. Bir cümlenin icerisinde, cümle ne olursa olsun "Anne" kelimesini iceriyorsa o cümleyi tamamen yanlis anlama</li>
-            <li>10. Abuk subuk sifreli konusma terciyesi</li>
-            <li>🔻 11. Babayi dövme - <span class="irony">IRONY</span></li>
-            <li>12. 97x kere birsey isteyip o isteneni yaptirip ondan sonra silkememe huyu</li>
-            <li>13. DM / Özel yazdigi sanip mesajlari grupa atma</li>
-            <li>14. Sordugun soruya cevap vermeme sorunu</li>
-            <li>15. Call caldirip acmani bekliyerek 10 dkk kendi beklemesine ragmen "dodge click my bad" yalan atmasi</li>
-            <li>16. Kendisi yapar; ne olursa olsun sanki hiçbir şey yapmamış gibi davranır. Hak, hukuk, din ve ırk sebepleri bile olsa kendisi resmen pamuk meleği masum olur. Biz yapınca ise bok, kaka, am, çük, sperm.</li>
-            <li>17. Laver aftaler men kommer 4 timer senere fordi han sover over fordi han er for doven til at sætte alarm</li>
-            <li>18. Arkadaslarina "ben gitcem yatcam" demesi 17 kere gerektiyiror, demedigi halde dopamin deposu götüne giriyor</li>
-            <li>19. Yatcam gitcem dedikten sonra aksamin zifiri karanlikta CINlerin gezdigi zamanda kendisi ayakta oluyor</li>
-            <li class="new">🆕 20. Bilerek AI voice cancellation sistemleri kapatip 20 saat call'da BUNA ÜSENMEYIP beynimizi sikiyor, cevap vermememizi bekleyip arkadan icten sinir krizi gecirmemizi sagliyor</li>
-            <li class="new">🆕 21. Sifir anlamli sorular sorup, atigim mesaji vault'da sakliyormussum gibi abuk subuk cümle kurma sorunu</li>
-        </ul>
+        <ul id="changelogList"></ul>
         
         <div class="add-section">
             <h2>Add New Entry</h2>
@@ -143,10 +130,53 @@
         </div>
     </div>
     
-    <script>
-        let nextNumber = 22;
-        
-        function addEntry() {
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, push, onValue, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyCvNZ4RACMnk-u7gXk2AHhydusQnOMRJqo",
+          authDomain: "the-izzet-list.firebaseapp.com",
+          databaseURL: "https://the-izzet-list-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "the-izzet-list",
+          storageBucket: "the-izzet-list.firebasestorage.app",
+          messagingSenderId: "592172568200",
+          appId: "1:592172568200:web:1b2e374b8b9c47f11a593d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const itemsRef = ref(database, 'changelog');
+
+        // Load items from database
+        onValue(itemsRef, (snapshot) => {
+            const list = document.getElementById('changelogList');
+            list.innerHTML = '';
+            
+            const data = snapshot.val();
+            if (data) {
+                Object.entries(data).forEach(([key, item]) => {
+                    const li = document.createElement('li');
+                    li.className = item.isNew ? 'new' : '';
+                    
+                    const textSpan = document.createElement('span');
+                    textSpan.className = 'item-text';
+                    textSpan.innerHTML = item.text;
+                    
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'delete-btn';
+                    deleteBtn.textContent = 'Delete';
+                    deleteBtn.onclick = () => deleteEntry(key);
+                    
+                    li.appendChild(textSpan);
+                    li.appendChild(deleteBtn);
+                    list.appendChild(li);
+                });
+            }
+        });
+
+        // Add entry
+        window.addEntry = function() {
             const input = document.getElementById('newEntry');
             const text = input.value.trim();
             
@@ -155,17 +185,23 @@
                 return;
             }
             
-            const list = document.getElementById('changelogList');
-            const newItem = document.createElement('li');
-            newItem.className = 'new';
-            newItem.innerHTML = `🆕 ${nextNumber}. ${text}`;
+            push(itemsRef, {
+                text: `🆕 ${text}`,
+                isNew: true,
+                timestamp: Date.now()
+            });
             
-            list.appendChild(newItem);
-            
-            nextNumber++;
             input.value = '';
-        }
-        
+        };
+
+        // Delete entry
+        window.deleteEntry = function(key) {
+            if (confirm('Are you sure you want to delete this item?')) {
+                const itemRef = ref(database, `changelog/${key}`);
+                remove(itemRef);
+            }
+        };
+
         document.getElementById('newEntry').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 addEntry();
