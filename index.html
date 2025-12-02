@@ -132,7 +132,7 @@
     
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getDatabase, ref, push, onValue, remove, set, get } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getDatabase, ref, push, onValue, remove, get } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
         const firebaseConfig = {
           apiKey: "AIzaSyCvNZ4RACMnk-u7gXk2AHhydusQnOMRJqo",
@@ -150,27 +150,27 @@
 
         // Original items to populate database
         const originalItems = [
-            { text: '🔻 1. Anneye küfür - <span class="irony">IRONY</span>', isNew: false, timestamp: 1 },
-            { text: '2. Babaya Argo konusma', isNew: false, timestamp: 2 },
-            { text: '2. Kendi kucuk kardesi ona küfür', isNew: false, timestamp: 3 },
-            { text: '3. Yalan atma', isNew: false, timestamp: 4 },
-            { text: '4. Indirek olma sorunu', isNew: false, timestamp: 5 },
-            { text: '5. Sabit ve simplistic sorulara cevap verememe', isNew: false, timestamp: 6 },
-            { text: '6. Mesaj okuyup sonra cevap verme', isNew: false, timestamp: 7 },
-            { text: '8. Kendisine yapilmamasini istenileni baskalarina yapma', isNew: false, timestamp: 8 },
-            { text: '9. Bir cümlenin icerisinde, cümle ne olursa olsun "Anne" kelimesini iceriyorsa o cümleyi tamamen yanlis anlama', isNew: false, timestamp: 9 },
-            { text: '10. Abuk subuk sifreli konusma terciyesi', isNew: false, timestamp: 10 },
-            { text: '🔻 11. Babayi dövme - <span class="irony">IRONY</span>', isNew: false, timestamp: 11 },
-            { text: '12. 97x kere birsey isteyip o isteneni yaptirip ondan sonra silkememe huyu', isNew: false, timestamp: 12 },
-            { text: '13. DM / Özel yazdigi sanip mesajlari grupa atma', isNew: false, timestamp: 13 },
-            { text: '14. Sordugun soruya cevap vermeme sorunu', isNew: false, timestamp: 14 },
-            { text: '15. Call caldirip acmani bekliyerek 10 dkk kendi beklemesine ragmen "dodge click my bad" yalan atmasi', isNew: false, timestamp: 15 },
-            { text: '16. Kendisi yapar; ne olursa olsun sanki hiçbir şey yapmamış gibi davranır. Hak, hukuk, din ve ırk sebepleri bile olsa kendisi resmen pamuk meleği masum olur. Biz yapınca ise bok, kaka, am, çük, sperm.', isNew: false, timestamp: 16 },
-            { text: '17. Laver aftaler men kommer 4 timer senere fordi han sover over fordi han er for doven til at sætte alarm', isNew: false, timestamp: 17 },
-            { text: '18. Arkadaslarina "ben gitcem yatcam" demesi 17 kere gerektiyiror, demedigi halde dopamin deposu götüne giriyor', isNew: false, timestamp: 18 },
-            { text: '19. Yatcam gitcem dedikten sonra aksamin zifiri karanlikta CINlerin gezdigi zamanda kendisi ayakta oluyor', isNew: false, timestamp: 19 },
-            { text: '🆕 20. Bilerek AI voice cancellation sistemleri kapatip 20 saat call\'da BUNA ÜSENMEYIP beynimizi sikiyor, cevap vermememizi bekleyip arkadan icten sinir krizi gecirmemizi sagliyor', isNew: true, timestamp: 20 },
-            { text: '🆕 21. Sifir anlamli sorular sorup, atigim mesaji vault\'da sakliyormussum gibi abuk subuk cümle kurma sorunu', isNew: true, timestamp: 21 }
+            { text: 'Anneye küfür - <span class="irony">IRONY</span>', isNew: false, timestamp: 1, number: 1, prefix: '🔻' },
+            { text: 'Babaya Argo konusma', isNew: false, timestamp: 2, number: 2 },
+            { text: 'Kendi kucuk kardesi ona küfür', isNew: false, timestamp: 3, number: 2 },
+            { text: 'Yalan atma', isNew: false, timestamp: 4, number: 3 },
+            { text: 'Indirek olma sorunu', isNew: false, timestamp: 5, number: 4 },
+            { text: 'Sabit ve simplistic sorulara cevap verememe', isNew: false, timestamp: 6, number: 5 },
+            { text: 'Mesaj okuyup sonra cevap verme', isNew: false, timestamp: 7, number: 6 },
+            { text: 'Kendisine yapilmamasini istenileni baskalarina yapma', isNew: false, timestamp: 8, number: 8 },
+            { text: 'Bir cümlenin icerisinde, cümle ne olursa olsun "Anne" kelimesini iceriyorsa o cümleyi tamamen yanlis anlama', isNew: false, timestamp: 9, number: 9 },
+            { text: 'Abuk subuk sifreli konusma terciyesi', isNew: false, timestamp: 10, number: 10 },
+            { text: 'Babayi dövme - <span class="irony">IRONY</span>', isNew: false, timestamp: 11, number: 11, prefix: '🔻' },
+            { text: '97x kere birsey isteyip o isteneni yaptirip ondan sonra silkememe huyu', isNew: false, timestamp: 12, number: 12 },
+            { text: 'DM / Özel yazdigi sanip mesajlari grupa atma', isNew: false, timestamp: 13, number: 13 },
+            { text: 'Sordugun soruya cevap vermeme sorunu', isNew: false, timestamp: 14, number: 14 },
+            { text: 'Call caldirip acmani bekliyerek 10 dkk kendi beklemesine ragmen "dodge click my bad" yalan atmasi', isNew: false, timestamp: 15, number: 15 },
+            { text: 'Kendisi yapar; ne olursa olsun sanki hiçbir şey yapmamış gibi davranır. Hak, hukuk, din ve ırk sebepleri bile olsa kendisi resmen pamuk meleği masum olur. Biz yapınca ise bok, kaka, am, çük, sperm.', isNew: false, timestamp: 16, number: 16 },
+            { text: 'Laver aftaler men kommer 4 timer senere fordi han sover over fordi han er for doven til at sætte alarm', isNew: false, timestamp: 17, number: 17 },
+            { text: 'Arkadaslarina "ben gitcem yatcam" demesi 17 kere gerektiyiror, demedigi halde dopamin deposu götüne giriyor', isNew: false, timestamp: 18, number: 18 },
+            { text: 'Yatcam gitcem dedikten sonra aksamin zifiri karanlikta CINlerin gezdigi zamanda kendisi ayakta oluyor', isNew: false, timestamp: 19, number: 19 },
+            { text: 'Bilerek AI voice cancellation sistemleri kapatip 20 saat call\'da BUNA ÜSENMEYIP beynimizi sikiyor, cevap vermememizi bekleyip arkadan icten sinir krizi gecirmemizi sagliyor', isNew: true, timestamp: 20, number: 20 },
+            { text: 'Sifir anlamli sorular sorup, atigim mesaji vault\'da sakliyormussum gibi abuk subuk cümle kurma sorunu', isNew: true, timestamp: 21, number: 21 }
         ];
 
         // Initialize database with original items if empty
@@ -182,6 +182,8 @@
             }
         });
 
+        let currentMaxNumber = 21;
+
         // Load items from database
         onValue(itemsRef, (snapshot) => {
             const list = document.getElementById('changelogList');
@@ -189,8 +191,15 @@
             
             const data = snapshot.val();
             if (data) {
-                // Sort by timestamp to maintain order
                 const sortedEntries = Object.entries(data).sort((a, b) => a[1].timestamp - b[1].timestamp);
+                
+                // Find max number
+                currentMaxNumber = 0;
+                sortedEntries.forEach(([key, item]) => {
+                    if (item.number > currentMaxNumber) {
+                        currentMaxNumber = item.number;
+                    }
+                });
                 
                 sortedEntries.forEach(([key, item]) => {
                     const li = document.createElement('li');
@@ -198,7 +207,17 @@
                     
                     const textSpan = document.createElement('span');
                     textSpan.className = 'item-text';
-                    textSpan.innerHTML = item.text;
+                    
+                    let displayText = '';
+                    if (item.prefix) {
+                        displayText = `${item.prefix} `;
+                    }
+                    if (item.isNew) {
+                        displayText += '🆕 ';
+                    }
+                    displayText += `${item.number}. ${item.text}`;
+                    
+                    textSpan.innerHTML = displayText;
                     
                     const deleteBtn = document.createElement('button');
                     deleteBtn.className = 'delete-btn';
@@ -222,10 +241,13 @@
                 return;
             }
             
+            const nextNumber = currentMaxNumber + 1;
+            
             push(itemsRef, {
-                text: `🆕 ${text}`,
+                text: text,
                 isNew: true,
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                number: nextNumber
             });
             
             input.value = '';
