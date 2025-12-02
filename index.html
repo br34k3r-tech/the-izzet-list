@@ -132,7 +132,7 @@
     
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getDatabase, ref, push, onValue, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getDatabase, ref, push, onValue, remove, set, get } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
         const firebaseConfig = {
           apiKey: "AIzaSyCvNZ4RACMnk-u7gXk2AHhydusQnOMRJqo",
@@ -148,6 +148,40 @@
         const database = getDatabase(app);
         const itemsRef = ref(database, 'changelog');
 
+        // Original items to populate database
+        const originalItems = [
+            { text: '🔻 1. Anneye küfür - <span class="irony">IRONY</span>', isNew: false, timestamp: 1 },
+            { text: '2. Babaya Argo konusma', isNew: false, timestamp: 2 },
+            { text: '2. Kendi kucuk kardesi ona küfür', isNew: false, timestamp: 3 },
+            { text: '3. Yalan atma', isNew: false, timestamp: 4 },
+            { text: '4. Indirek olma sorunu', isNew: false, timestamp: 5 },
+            { text: '5. Sabit ve simplistic sorulara cevap verememe', isNew: false, timestamp: 6 },
+            { text: '6. Mesaj okuyup sonra cevap verme', isNew: false, timestamp: 7 },
+            { text: '8. Kendisine yapilmamasini istenileni baskalarina yapma', isNew: false, timestamp: 8 },
+            { text: '9. Bir cümlenin icerisinde, cümle ne olursa olsun "Anne" kelimesini iceriyorsa o cümleyi tamamen yanlis anlama', isNew: false, timestamp: 9 },
+            { text: '10. Abuk subuk sifreli konusma terciyesi', isNew: false, timestamp: 10 },
+            { text: '🔻 11. Babayi dövme - <span class="irony">IRONY</span>', isNew: false, timestamp: 11 },
+            { text: '12. 97x kere birsey isteyip o isteneni yaptirip ondan sonra silkememe huyu', isNew: false, timestamp: 12 },
+            { text: '13. DM / Özel yazdigi sanip mesajlari grupa atma', isNew: false, timestamp: 13 },
+            { text: '14. Sordugun soruya cevap vermeme sorunu', isNew: false, timestamp: 14 },
+            { text: '15. Call caldirip acmani bekliyerek 10 dkk kendi beklemesine ragmen "dodge click my bad" yalan atmasi', isNew: false, timestamp: 15 },
+            { text: '16. Kendisi yapar; ne olursa olsun sanki hiçbir şey yapmamış gibi davranır. Hak, hukuk, din ve ırk sebepleri bile olsa kendisi resmen pamuk meleği masum olur. Biz yapınca ise bok, kaka, am, çük, sperm.', isNew: false, timestamp: 16 },
+            { text: '17. Laver aftaler men kommer 4 timer senere fordi han sover over fordi han er for doven til at sætte alarm', isNew: false, timestamp: 17 },
+            { text: '18. Arkadaslarina "ben gitcem yatcam" demesi 17 kere gerektiyiror, demedigi halde dopamin deposu götüne giriyor', isNew: false, timestamp: 18 },
+            { text: '19. Yatcam gitcem dedikten sonra aksamin zifiri karanlikta CINlerin gezdigi zamanda kendisi ayakta oluyor', isNew: false, timestamp: 19 },
+            { text: '🆕 20. Bilerek AI voice cancellation sistemleri kapatip 20 saat call\'da BUNA ÜSENMEYIP beynimizi sikiyor, cevap vermememizi bekleyip arkadan icten sinir krizi gecirmemizi sagliyor', isNew: true, timestamp: 20 },
+            { text: '🆕 21. Sifir anlamli sorular sorup, atigim mesaji vault\'da sakliyormussum gibi abuk subuk cümle kurma sorunu', isNew: true, timestamp: 21 }
+        ];
+
+        // Initialize database with original items if empty
+        get(itemsRef).then((snapshot) => {
+            if (!snapshot.exists()) {
+                originalItems.forEach(item => {
+                    push(itemsRef, item);
+                });
+            }
+        });
+
         // Load items from database
         onValue(itemsRef, (snapshot) => {
             const list = document.getElementById('changelogList');
@@ -155,7 +189,10 @@
             
             const data = snapshot.val();
             if (data) {
-                Object.entries(data).forEach(([key, item]) => {
+                // Sort by timestamp to maintain order
+                const sortedEntries = Object.entries(data).sort((a, b) => a[1].timestamp - b[1].timestamp);
+                
+                sortedEntries.forEach(([key, item]) => {
                     const li = document.createElement('li');
                     li.className = item.isNew ? 'new' : '';
                     
