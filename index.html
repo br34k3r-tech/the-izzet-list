@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Izzet List: Version 2</title>
     
-    <meta property="og:title" content="The Izzet List v4.2 Changelog" />
+    <meta property="og:title" content="The Izzet List v2 Changelog" />
     <meta property="og:description" content="The violations of our dear friend, Izzet.." />
     <meta property="og:url" content="https://br34k3r-tech.github.io/the-izzet-list" />
     <meta property="og:type" content="website" />
@@ -138,6 +138,10 @@
             background-color: #4a9eff;
             color: #fff;
         }
+        .lang-button.loading {
+            opacity: 0.6;
+            cursor: wait;
+        }
     </style>
 </head>
 <body>
@@ -179,7 +183,7 @@
         const database = getDatabase(app);
         const itemsRef = ref(database, 'changelog');
 
-        const TRANSLATE_ENDPOINT = 'https://the-izzet-list.vercel.app/api/translate'; // TODO: replace
+        const TRANSLATE_ENDPOINT = 'https://the-izzet-list.vercel.app/api/translate';
         let currentMaxNumber = 21;
         let currentLang = 'tr';
         let currentData = {};
@@ -298,9 +302,16 @@
         window.setLanguage = async function (lang) {
             currentLang = lang;
 
-            document.querySelectorAll('.lang-button').forEach(btn => {
+            const buttons = document.querySelectorAll('.lang-button');
+            buttons.forEach(btn => {
                 btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
             });
+
+            const currentBtn = document.querySelector(`.lang-button[data-lang="${lang}"]`);
+            if (currentBtn) {
+                currentBtn.classList.add('loading');
+                currentBtn.disabled = true;
+            }
 
             const spans = Array.from(document.querySelectorAll('.item-text'));
 
@@ -310,6 +321,10 @@
                     const original = span.dataset.original;
                     span.innerHTML = `${number}. ${original}`;
                 });
+                if (currentBtn) {
+                    currentBtn.classList.remove('loading');
+                    currentBtn.disabled = false;
+                }
                 return;
             }
 
@@ -341,6 +356,11 @@
             } catch (err) {
                 console.error(err);
                 alert('Error calling translation service.');
+            } finally {
+                if (currentBtn) {
+                    currentBtn.classList.remove('loading');
+                    currentBtn.disabled = false;
+                }
             }
         };
 
