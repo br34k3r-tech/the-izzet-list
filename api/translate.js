@@ -4,6 +4,16 @@ const GOOGLE_TRANSLATE_URL =
   'https://translate.googleapis.com/translate_a/single';
 
 export default async function handler(req, res) {
+  // CORS headers for all responses
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Handle preflight
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Only POST allowed' });
   }
@@ -36,7 +46,6 @@ export default async function handler(req, res) {
       }
 
       const data = await r.json();
-      // data format: [[["Translated text","Original",null,null,...]],...]
       const translated = data[0]?.map(chunk => chunk[0]).join(' ') || '';
       results.push(translated);
     }
