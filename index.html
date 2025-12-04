@@ -32,7 +32,7 @@
             color: #4a9eff;
             border-bottom: 2px solid #4a9eff;
             padding-bottom: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         ul {
             list-style-type: none;
@@ -115,11 +115,41 @@
         .delete-btn:hover {
             background-color: #c0392b;
         }
+        .lang-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .lang-bar span {
+            font-size: 14px;
+            color: #ccc;
+        }
+        .lang-button {
+            padding: 6px 10px;
+            font-size: 13px;
+            border-radius: 4px;
+            border: 1px solid #4a9eff;
+            background-color: #2a2a2a;
+            color: #e0e0e0;
+            cursor: pointer;
+        }
+        .lang-button.active {
+            background-color: #4a9eff;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>The Izzet List V2: Changelog</h1>
+        <div class="lang-bar">
+            <span>Temporary translation:</span>
+            <button class="lang-button active" data-lang="tr" onclick="setLanguage('tr')">Turkish</button>
+            <button class="lang-button" data-lang="en" onclick="setLanguage('en')">English</button>
+            <button class="lang-button" data-lang="da" onclick="setLanguage('da')">Danish</button>
+        </div>
+
         <ul id="changelogList"></ul>
         
         <div class="add-section">
@@ -149,7 +179,11 @@
         const database = getDatabase(app);
         const itemsRef = ref(database, 'changelog');
 
-        // Original items to populate database
+        const TRANSLATE_ENDPOINT = 'https://the-izzet-list.vercel.app/api/translate'; // TODO: replace
+        let currentMaxNumber = 21;
+        let currentLang = 'tr';
+        let currentData = {};
+
         const originalItems = [
             { text: 'Anneye küfür - <span class="irony">IRONY</span>', isNew: false, timestamp: 1, number: 1, prefix: '🔻' },
             { text: 'Babaya Argo konusma', isNew: false, timestamp: 2, number: 2 },
@@ -174,7 +208,6 @@
             { text: 'Sifir anlamli sorular sorup, atigim mesaji vault\'da sakliyormussum gibi abuk subuk cümle kurma sorunu', isNew: true, timestamp: 21, number: 21 }
         ];
 
-        // Initialize database with original items if empty
         get(itemsRef).then((snapshot) => {
             if (!snapshot.exists()) {
                 originalItems.forEach(item => {
@@ -183,18 +216,15 @@
             }
         });
 
-        let currentMaxNumber = 21;
-
-        // Load items from database
         onValue(itemsRef, (snapshot) => {
             const list = document.getElementById('changelogList');
             list.innerHTML = '';
             
             const data = snapshot.val();
+            currentData = data || {};
             if (data) {
                 const sortedEntries = Object.entries(data).sort((a, b) => a[1].timestamp - b[1].timestamp);
                 
-                // Find max number
                 currentMaxNumber = 0;
                 sortedEntries.forEach(([key, item]) => {
                     if (item.number && item.number > currentMaxNumber) {
@@ -202,43 +232,38 @@
                     }
                 });
                 
-                sortedEntries.forEach(([key, item]) => {
-                    const li = document.createElement('li');
-                    li.className = item.isNew ? 'new' : '';
-                    
-                    const textSpan = document.createElement('span');
-                    textSpan.className = 'item-text';
-                    
-                    let displayText = '';
-                    if (item.prefix) {
-                        displayText = `${item.prefix} `;
-                    }
-                    if (item.isNew) {
-                        displayText += '🆕 ';
-                    }
-                    if (item.number) {
-                        displayText += `${item.number}. `;
-                    }
-                    displayText += item.text;
-                    
-                    textSpan.innerHTML = displayText;
-                    
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.className = 'delete-btn';
-                    deleteBtn.textContent = 'Delete';
-                    deleteBtn.setAttribute('data-key', key);
-                    deleteBtn.addEventListener('click', function() {
-                        deleteEntry(this.getAttribute('data-key'));
-                    });
-                    
-                    li.appendChild(textSpan);
-                    li.appendChild(deleteBtn);
-                    list.appendChild(li);
-                });
+                sortedEntries.forEach(renderItem);
             }
         });
 
-        // Add entry
+        function renderItem([key, item]) {
+            const list = document.getElementById('changelogList');
+            const li = document.createElement('li');
+            li.className = item.isNew ? 'new' : '';
+            
+            const textSpan = document.createElement('span');
+            textSpan.className = 'item-text';
+            
+            const number = item.number || '?';
+            const prefix = item.prefix ? item.prefix + ' ' : '';
+
+            textSpan.innerHTML = `${prefix}${number}. ${item.text}`;
+            textSpan.dataset.number = number;
+            textSpan.dataset.original = item.text;
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.setAttribute('data-key', key);
+            deleteBtn.addEventListener('click', function() {
+                deleteEntry(this.getAttribute('data-key'));
+            });
+            
+            li.appendChild(textSpan);
+            li.appendChild(deleteBtn);
+            list.appendChild(li);
+        }
+
         window.addEntry = function() {
             const input = document.getElementById('newEntry');
             const text = input.value.trim();
@@ -260,18 +285,64 @@
             input.value = '';
         };
 
-        // Delete entry
         function deleteEntry(key) {
             if (confirm('Are you sure you want to delete this item?')) {
                 const itemRef = ref(database, `changelog/${key}`);
-                remove(itemRef).then(() => {
-                    console.log('Item deleted successfully');
-                }).catch((error) => {
+                remove(itemRef).catch((error) => {
                     console.error('Error deleting item:', error);
                     alert('Failed to delete item. Check console for details.');
                 });
             }
         }
+
+        window.setLanguage = async function (lang) {
+            currentLang = lang;
+
+            document.querySelectorAll('.lang-button').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+            });
+
+            const spans = Array.from(document.querySelectorAll('.item-text'));
+
+            if (lang === 'tr') {
+                spans.forEach(span => {
+                    const number = span.dataset.number || '?';
+                    const original = span.dataset.original;
+                    span.innerHTML = `${number}. ${original}`;
+                });
+                return;
+            }
+
+            const texts = spans.map(span => span.dataset.original);
+
+            try {
+                const res = await fetch(TRANSLATE_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        texts,
+                        source: 'auto',
+                        target: lang
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok || !data.translations) {
+                    console.error(data);
+                    alert('Translation failed.');
+                    return;
+                }
+
+                const translated = data.translations;
+                spans.forEach((span, i) => {
+                    const number = span.dataset.number || '?';
+                    span.innerHTML = `${number}. ${translated[i]}`;
+                });
+            } catch (err) {
+                console.error(err);
+                alert('Error calling translation service.');
+            }
+        };
 
         document.getElementById('newEntry').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
