@@ -1,5 +1,8 @@
 import fetch from 'node-fetch';
 
+const GOOGLE_TRANSLATE_URL =
+  'https://translate.googleapis.com/translate_a/single';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Only POST allowed' });
@@ -16,29 +19,26 @@ export default async function handler(req, res) {
         .json({ error: 'texts[] and target are required' });
     }
 
-    const url = 'https://libretranslate.com/translate';
     const results = [];
 
     for (const text of texts) {
-      const r = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          q: text,
-          source,
-          target,
-          format: 'html'
-        })
-      });
+      const url =
+        GOOGLE_TRANSLATE_URL +
+        `?client=gtx&sl=${encodeURIComponent(source)}` +
+        `&tl=${encodeURIComponent(target)}` +
+        `&dt=t&q=${encodeURIComponent(text)}`;
 
+      const r = await fetch(url);
       if (!r.ok) {
-        const bodyText = await r.text();
-        console.error('LibreTranslate error:', r.status, bodyText);
-        throw new Error('LibreTranslate failed: ' + r.status);
+        const txt = await r.text();
+        console.error('Google web translate error:', r.status, txt);
+        throw new Error('Translate failed: ' + r.status);
       }
 
       const data = await r.json();
-      results.push(data.translatedText);
+      // data format: [[["Translated text","Original",null,null,...]],...]
+      const translated = data[0]?.map(chunk => chunk[0]).join(' ') || '';
+      results.push(translated);
     }
 
     return res.status(200).json({ translations: results });
