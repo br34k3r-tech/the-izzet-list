@@ -19,6 +19,6 @@
   },
   "homepage": "https://github.com/br34k3r-tech/the-izzet-list#readme",
   "dependencies": {
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^2.7.0"
   }
 }
