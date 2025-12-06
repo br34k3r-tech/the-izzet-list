@@ -277,6 +277,17 @@
                 return;
             }
             
+            // Check for duplicates
+            const isDuplicate = Object.values(currentData).some(item => 
+                item.text.toLowerCase() === text.toLowerCase()
+            );
+            
+            if (isDuplicate) {
+                alert('This entry already exists!');
+                input.value = '';
+                return;
+            }
+            
             const nextNumber = currentMaxNumber + 1;
             
             push(itemsRef, {
@@ -288,6 +299,45 @@
             
             input.value = '';
         };
+
+        // Add this function after your other functions
+        window.removeDuplicates = async function() {
+            const snapshot = await get(itemsRef);
+            if (!snapshot.exists()) return;
+            
+            const data = snapshot.val();
+            const seen = new Map();
+            const duplicatesToDelete = [];
+            
+            // Find duplicates (keep the oldest entry based on timestamp)
+            Object.entries(data).forEach(([key, item]) => {
+                const textLower = item.text.toLowerCase();
+                
+                if (seen.has(textLower)) {
+                    const existingEntry = seen.get(textLower);
+                    // Keep the older one, delete the newer one
+                    if (item.timestamp > existingEntry.timestamp) {
+                        duplicatesToDelete.push(key);
+                    } else {
+                        duplicatesToDelete.push(existingEntry.key);
+                        seen.set(textLower, { key, timestamp: item.timestamp });
+                    }
+                } else {
+                    seen.set(textLower, { key, timestamp: item.timestamp });
+                }
+            });
+            
+            // Delete duplicates
+            for (const key of duplicatesToDelete) {
+                const itemRef = ref(database, `changelog/${key}`);
+                await remove(itemRef);
+            }
+            
+            console.log(`Removed ${duplicatesToDelete.length} duplicate(s)`);
+            alert(`Removed ${duplicatesToDelete.length} duplicate entry/entries`);
+        };
+
+
 
         function deleteEntry(key) {
             if (confirm('Are you sure you want to delete this item?')) {
